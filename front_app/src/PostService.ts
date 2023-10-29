@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Post } from "./Posts";
+import { IPost } from "./Posts";
 const API_URL = "http://localhost:8000";
 
 export default class PostService {
@@ -10,7 +10,7 @@ export default class PostService {
     return axios.get(url).then((response) => response.data);
   }
 
-  setLikePost(id: number, post: Post) {
+  setLikePost(id: number, post: IPost) {
     const url = `${API_URL}/api/posts/` + id + "/";
     return axios.patch(url, { ...post }).then((response) => response.data);
   }

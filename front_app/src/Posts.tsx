@@ -1,20 +1,22 @@
-import * as React from "react";
+import React, { ChangeEvent } from "react";
 import PostService from "./PostService";
 
 const postService = new PostService();
+
+export interface IPost {
+  id: number;
+  text: string;
+  likesCount: number;
+  date: Date;
+}
+
 interface Istate {
-  data: string[];
+  data: IPost[];
   inputValue: string;
 }
 
-export interface Post {
-  date: string;
-  id: number;
-  likesCount: number;
-  text: string;
-}
 export default class Posts extends React.Component<any, Istate> {
-  constructor(props: any) {
+  constructor(props: string) {
     super(props);
     this.state = {
       data: [],
@@ -22,13 +24,16 @@ export default class Posts extends React.Component<any, Istate> {
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleDelete = this.handleDelete.bind(this);
   }
 
-  handleChange(event) {
+  handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ inputValue: event.target.value });
   }
 
-  handleSubmit(event) {
+  handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
+    console.log(event);
+
     postService.createPost({ text: this.state.inputValue });
     this.getData();
     this.setState({ inputValue: "" });
@@ -44,15 +49,29 @@ export default class Posts extends React.Component<any, Istate> {
     this.getData();
   }
 
-  setLike(post: Post) {
+  setLike(post: IPost) {
     post.likesCount += 1;
     postService.setLikePost(post.id, post);
     this.forceUpdate();
   }
 
-  handleDelete(post: Post) {
+  handleDelete(post: IPost) {
     postService.deletePost(post.id);
     this.getData();
+  }
+
+  formatDate({ date }: IPost) {
+    const string_date = new Date(date);
+
+    const options = {
+      day: "numeric",
+      year: "numeric",
+      month: "long",
+      hour: "numeric",
+      minute: "numeric",
+      timezone: "UTC",
+    };
+    return string_date.toLocaleString("ru", options);
   }
 
   render() {
@@ -65,7 +84,9 @@ export default class Posts extends React.Component<any, Istate> {
               {" "}
               {post.likesCount}
             </button>
-            <p> Date : {Date(post.date)}</p>
+            <p>
+              Опубликовано: <span>{this.formatDate(post)}</span>
+            </p>
             <button onClick={() => this.handleDelete(post)}>X</button>
             <hr />
           </div>
